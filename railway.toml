@@ -1,0 +1,8 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "./RailwayDeploymentAot/Dockerfile"
+
+[deploy]
+startCommand = "dotnet API.BackEnd.dll"
+restartPolicyType = "always"
+healthcheckPath = "/health"
