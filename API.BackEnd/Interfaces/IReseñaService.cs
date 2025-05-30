@@ -9,5 +9,8 @@ namespace API.BackEnd.Interfaces
         Task<IEnumerable<ResenaDto>> GetResenasByLibroAsync(int libroId);
         Task<Reseña> CreateResenaAsync(CreateResenaDto nuevaResena);
         Task<bool> DeleteResenaAsync(int resenaId);
+        Task<IEnumerable<ResenaDto>> GetResenasByUsuarioAsync(int usuarioId);
+        Task<ResenaDto> UpdateResenaAsync(int resenaId, UpdateResenaDto updateDto);
+
     }
 }

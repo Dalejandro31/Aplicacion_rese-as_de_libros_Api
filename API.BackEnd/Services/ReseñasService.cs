@@ -66,5 +66,28 @@ namespace API.BackEnd.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<IEnumerable<ResenaDto>> GetResenasByUsuarioAsync(int usuarioId)
+        {
+            var res = await _context.Reseñas
+                .Where(r => r.UsuarioId == usuarioId)
+                .Include(r => r.Usuario)
+                .Include(r => r.Libro)
+                .OrderByDescending(r => r.FechaReseña)
+                .ToListAsync();
+            return _mapper.Map<IEnumerable<ResenaDto>>(res);
+        }
+
+        public async Task<ResenaDto> UpdateResenaAsync(int resenaId, UpdateResenaDto dto)
+        {
+            var r = await _context.Reseñas.FindAsync(resenaId);
+            if (r == null) return null;
+            r.Calificacion = (byte)dto.Calificacion;
+            r.Comentario = dto.Comentario;
+            await _context.SaveChangesAsync();
+            // recargar con includes
+            var actualizado = await GetResenaByIdAsync(resenaId);
+            return actualizado;
+        }
     }
 }

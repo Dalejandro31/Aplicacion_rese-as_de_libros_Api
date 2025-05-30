@@ -15,6 +15,7 @@ namespace API.BackEnd.Profiles
                 .ForMember(dest => dest.FechaResena,
                         opt => opt.MapFrom(src => src.FechaReseña));
 
+
             // De DTO de creación a entidad
             CreateMap<CreateResenaDto, Reseña>()
                 .ForMember(d => d.Calificacion,

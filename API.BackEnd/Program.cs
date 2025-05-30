@@ -10,11 +10,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.UseUrls($"http://*:{port}");
-
-builder.Services.AddHealthChecks();
-
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -34,10 +29,9 @@ builder.Services.AddAutoMapper(
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("PermitirFrontend", policy =>
+    options.AddPolicy("AllowAll", policy =>
     {
-        policy.WithOrigins("http://localhost:5173/")
-              .AllowAnyOrigin()
+        policy.AllowAnyOrigin()
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
@@ -123,12 +117,12 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.UseCors("PermitirFrontend");
+app.UseCors("AllowAll");
 
 app.UseAuthorization();
 
 app.MapControllers();
 
-app.MapHealthChecks("/health");
+app.MapGet("/api/prueba", () => Results.Ok("prueba"));
 
 app.Run();

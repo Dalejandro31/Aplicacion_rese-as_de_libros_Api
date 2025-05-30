@@ -1,4 +1,6 @@
-﻿using API.BackEnd.DTOS.Reseñas;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using API.BackEnd.DTOS.Reseñas;
 using API.BackEnd.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -73,7 +75,7 @@ namespace API.BackEnd.Controllers
                 // Mapear la entidad recién creada a DTO para la respuesta
                 var dto = await _reseñaService.GetResenaByIdAsync(entidad.ReseñaId);
 
-                return CreatedAtAction(nameof(GetById), new { id = dto.ResenaId }, dto);
+                return CreatedAtAction(nameof(GetById), new { id = dto.ReseñaId }, dto);
             }
             catch (ArgumentException aex)
             {
@@ -107,6 +109,50 @@ namespace API.BackEnd.Controllers
                 // _logger.LogError(ex, $"Error al eliminar la reseña {id}");
                 return StatusCode(500, "Ocurrió un error al procesar la solicitud.");
             }
+        }
+
+
+        // GET api/resenas/usuario/{usuarioId}
+        [HttpGet("usuario/{usuarioId:int}")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<ResenaDto>>> GetByUsuario(int usuarioId)
+        {
+            // Intentamos coger la claim "sub"
+            var sub = User.FindFirstValue(JwtRegisteredClaimNames.Sub)
+                      ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(sub, out var tokenUserId))
+                return Unauthorized("Token inválido.");
+
+            if (tokenUserId != usuarioId)
+                return Forbid();
+
+            var lista = await _reseñaService.GetResenasByUsuarioAsync(usuarioId);
+            return Ok(lista);
+        }
+
+        // PUT api/resenas/{id}
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<ResenaDto>> Update(int id, [FromBody] UpdateResenaDto dto)
+        {
+            // Extraer la claim de forma segura
+            var sub = User.FindFirstValue(JwtRegisteredClaimNames.Sub)
+                      ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(sub, out var tokenUserId))
+                return Unauthorized("Token inválido.");
+
+            // Comprobar que la reseña existe y pertenece al usuario
+            var existing = await _reseñaService.GetResenaByIdAsync(id);
+            if (existing == null)
+                return NotFound();
+
+            if (existing.UsuarioId != tokenUserId)
+                return Forbid();
+
+            // Realizar la actualización
+            var updated = await _reseñaService.UpdateResenaAsync(id, dto);
+            return Ok(updated);
         }
     }
 }
