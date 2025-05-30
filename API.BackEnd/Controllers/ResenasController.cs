@@ -138,7 +138,7 @@ namespace API.BackEnd.Controllers
             // Extraer la claim de forma segura
             var sub = User.FindFirstValue(JwtRegisteredClaimNames.Sub)
                       ?? User.FindFirstValue(ClaimTypes.NameIdentifier);
-
+             
             if (!int.TryParse(sub, out var tokenUserId))
                 return Unauthorized("Token inválido.");
 
