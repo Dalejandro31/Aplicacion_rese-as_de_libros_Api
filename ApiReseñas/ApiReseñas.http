@@ -1,6 +1,0 @@
-@ApiReseñas_HostAddress = http://localhost:5068
-
-GET {{ApiReseñas_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
